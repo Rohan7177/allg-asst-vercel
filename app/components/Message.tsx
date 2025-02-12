@@ -8,7 +8,7 @@ export default function Message({ message }: { message: MessageType }) {
     <div className={`flex items-start space-x-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
       {message.role !== 'user' && (
         <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-          <img alt="Assistant Avatar" className="w-8 h-8 rounded-full mr-2" src="img/cheficon.jpeg"></img>
+          <Bot className="w-5 h-5 text-white" />
         </div>
       )}
       <div className={`max-w-[80%] p-3 rounded-lg ${
@@ -27,10 +27,20 @@ export default function Message({ message }: { message: MessageType }) {
             h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-2" {...props} />,
             h2: ({node, ...props}) => <h2 className="text-xl font-bold mb-2" {...props} />,
             h3: ({node, ...props}) => <h3 className="text-lg font-bold mb-2" {...props} />,
-            code: ({node, inline, ...props}) =>
-              inline
-                ? <code className="bg-gray-200 rounded px-1" {...props} />
-                : <code className="block bg-gray-200 rounded p-2 my-2 whitespace-pre-wrap" {...props} />,
+            code: ({node, className, children, ...props}) => {
+              const match = /language-(\w+)/.exec(className || '')
+              return match ? (
+                <pre className="bg-gray-200 rounded p-2 my-2 overflow-auto">
+                  <code className={`language-${match[1]}`} {...props}>
+                    {children}
+                  </code>
+                </pre>
+              ) : (
+                <code className="bg-gray-200 rounded px-1" {...props}>
+                  {children}
+                </code>
+              )
+            },
           }}
         >
           {message.content}

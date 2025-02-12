@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useChat } from 'ai/react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,29 +16,32 @@ export default function Home() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+  }, [])
 
   useEffect(() => {
     if (!isFirstInput) {
       scrollToBottom()
     }
-  }, [messages, isFirstInput, scrollToBottom]); // Added scrollToBottom to dependencies
+  }, [messages, isFirstInput, scrollToBottom])
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     setIsTyping(true)
     setIsFirstInput(false)
-    handleSubmit(e).finally(() => setIsTyping(false))
-  }
+    handleSubmit(e)
+    // Set a timeout to change isTyping back to false
+    setTimeout(() => setIsTyping(false), 100)
+  }, [handleSubmit])
 
-  const handleInputFocus = () => {
+  const handleInputFocus = useCallback(() => {
     if (!isFirstInput) {
       setTimeout(() => {
         inputRef.current?.scrollIntoView({ behavior: 'smooth' })
       }, 100)
     }
-  }
+  }, [isFirstInput])
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-pink-100 to-blue-100">
